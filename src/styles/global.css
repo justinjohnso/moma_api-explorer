@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+:root {
+  --moma-black: #000000;
+  --moma-white: #ffffff;
+  --moma-red: #e4002b;
+  --moma-gray-600: #666666;
+  --moma-gray-200: #e5e5e5;
+  --moma-gray-100: #f5f5f5;
+}
+
+html,
+body {
+  background: var(--moma-white);
+  color: var(--moma-black);
+  font-family: Inter, 'DM Sans', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+code,
+pre {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.token.property {
+  color: #e4002b;
+}
+
+.token.string {
+  color: #26784f;
+}
+
+.token.number,
+.token.boolean {
+  color: #0a64af;
+}

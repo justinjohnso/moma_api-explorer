@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { categories, categoryDescriptions, categoryHref, categoryLabels, getEndpointsByCategory } from '../lib/endpoints';
+import RandomArtwork from '../components/RandomArtwork';
+---
+
+<BaseLayout title="MoMA API Playground">
+  <section class="max-w-[1200px] mx-auto px-6 py-14">
+    <header class="text-center">
+      <p class="text-xs uppercase tracking-[0.1em] text-[#666666]">Museum of Modern Art</p>
+      <h1 class="text-4xl md:text-5xl font-semibold mt-3">API Playground</h1>
+      <p class="text-[#666666] max-w-[760px] mx-auto mt-4 text-lg">
+        Explore, test, and understand MoMA public API endpoints with live request/response tooling.
+      </p>
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+        <a href="/docs/objects/random" class="bg-black text-white px-5 py-3 text-sm hover:opacity-90">
+          Start with Random Artwork
+        </a>
+        <a href="/docs/objects/search" class="border border-black px-5 py-3 text-sm hover:bg-black hover:text-white transition-colors">
+          Browse Documentation
+        </a>
+      </div>
+    </header>
+
+    <section class="mt-14">
+      <div class="inline-flex items-center gap-2 border border-black px-3 py-1 text-xs uppercase tracking-[0.08em] mb-3">
+        Powered by MoMA API
+      </div>
+      <h2 class="text-xl font-semibold">Discover Mode</h2>
+      <p class="text-[#666666] mt-2">Tap into a serendipitous collection view from `/api/objects/random`.</p>
+      <div class="mt-6 border border-black p-6">
+        <RandomArtwork client:load />
+      </div>
+    </section>
+
+    <section class="mt-14">
+      <h2 class="text-xl font-semibold">Endpoint Categories</h2>
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
+        {categories.map((category) => (
+          <a href={categoryHref(category)} class="border border-[#E5E5E5] p-4 hover:border-black transition-colors bg-white">
+            <h3 class="font-medium">{categoryLabels[category]}</h3>
+            <p class="text-sm text-[#666666] mt-2">{categoryDescriptions[category]}</p>
+            <p class="text-xs mt-3">{getEndpointsByCategory(category).length} endpoints</p>
+          </a>
+        ))}
+      </div>
+    </section>
+  </section>
+</BaseLayout>

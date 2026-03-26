@@ -1,0 +1,137 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs';
+import EndpointCard from '../../components/EndpointCard';
+import ApiPlayground from '../../components/ApiPlayground';
+import {
+  categories,
+  categoryDescriptions,
+  categoryHref,
+  categoryLabels,
+  endpointHref,
+  endpoints,
+  getEndpointsByCategory,
+  routeToEndpoint,
+} from '../../lib/endpoints';
+import type { CategoryKey } from '../../lib/types';
+
+export function getStaticPaths() {
+  const categoryPaths = categories.map((category) => ({
+    params: { slug: category },
+    props: { mode: 'category' as const, category },
+  }));
+  const endpointPaths = endpoints.map((endpoint) => ({
+    params: { slug: endpoint.docsPath.join('/') },
+    props: { mode: 'endpoint' as const, endpointId: endpoint.id },
+  }));
+  return [...categoryPaths, ...endpointPaths];
+}
+
+type CategoryProps = { mode: 'category'; category: CategoryKey };
+type EndpointProps = { mode: 'endpoint'; endpointId: string };
+type Props = CategoryProps | EndpointProps;
+
+const props = Astro.props as Props;
+let pageTitle = 'MoMA API Docs';
+let currentPath = '/docs';
+let categoryLabel = '';
+let category: CategoryKey | null = null;
+let categoryEndpoints = [] as typeof endpoints;
+let endpoint = undefined as (typeof endpoints)[number] | undefined;
+
+if (props.mode === 'category') {
+  category = props.category;
+  categoryLabel = categoryLabels[category];
+  categoryEndpoints = getEndpointsByCategory(category);
+  pageTitle = `${categoryLabel} API · MoMA Playground`;
+  currentPath = categoryHref(category);
+} else {
+  endpoint = endpoints.find((entry) => entry.id === props.endpointId);
+  if (!endpoint) {
+    return Astro.redirect('/');
+  }
+  const slugValue = Astro.params.slug ?? '';
+  const slugParts = Array.isArray(slugValue)
+    ? slugValue
+    : String(slugValue)
+        .split('/')
+        .filter(Boolean);
+  const found = routeToEndpoint(slugParts);
+  if (!found || found.id !== endpoint.id) {
+    return Astro.redirect(endpointHref(endpoint));
+  }
+  category = endpoint.category;
+  categoryLabel = categoryLabels[category];
+  pageTitle = `${endpoint.title} · MoMA Playground`;
+  currentPath = endpointHref(endpoint);
+}
+---
+
+<DocsLayout title={pageTitle} currentPath={currentPath}>
+  {props.mode === 'category' && category ? (
+    <>
+      <Breadcrumbs items={[{ label: 'API', href: '/' }, { label: categoryLabel }, { label: 'Overview' }]} />
+      <header>
+        <h1 class="text-3xl font-semibold">{categoryLabel}</h1>
+        <p class="text-[#666666] mt-2">{categoryDescriptions[category]}</p>
+      </header>
+
+      <section class="mt-8 grid lg:grid-cols-2 gap-4">
+        {categoryEndpoints.map((entry) => <EndpointCard endpoint={entry} />)}
+      </section>
+    </>
+  ) : endpoint ? (
+    <>
+      <Breadcrumbs
+        items={[
+          { label: 'API', href: '/' },
+          { label: categoryLabel, href: categoryHref(endpoint.category) },
+          { label: endpoint.title },
+        ]}
+      />
+
+      <header class="border border-[#E5E5E5] p-5 bg-white">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-[11px] px-2 py-1 border border-[#00875A] bg-[#E6F7EE] text-[#00875A] font-mono">GET</span>
+          <code class="text-xs md:text-sm font-mono break-all">{endpoint.pathTemplate}</code>
+        </div>
+        <h1 class="text-3xl font-semibold mt-3">{endpoint.title}</h1>
+        <p class="text-[#666666] mt-2">{endpoint.description}</p>
+      </header>
+
+      <section class="mt-6 border border-[#E5E5E5]">
+        <h2 class="px-5 py-3 text-xs uppercase tracking-[0.08em] font-semibold border-b border-[#E5E5E5] bg-[#F5F5F5]">
+          Parameters
+        </h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-[#E5E5E5] text-left">
+                <th class="p-3">Name</th>
+                <th class="p-3">Type</th>
+                <th class="p-3">Required</th>
+                <th class="p-3">Location</th>
+                <th class="p-3">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              {endpoint.parameters.map((parameter) => (
+                <tr class="border-b border-[#E5E5E5]">
+                  <td class="p-3 font-mono">{parameter.name}</td>
+                  <td class="p-3">{parameter.type}</td>
+                  <td class="p-3">{parameter.required ? 'Yes' : 'No'}</td>
+                  <td class="p-3">{parameter.location}</td>
+                  <td class="p-3">{parameter.description}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="mt-6">
+        <ApiPlayground client:visible endpoint={endpoint} />
+      </section>
+    </>
+  ) : null}
+</DocsLayout>
