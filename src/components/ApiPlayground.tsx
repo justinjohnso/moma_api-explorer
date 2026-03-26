@@ -353,18 +353,22 @@ export default function ApiPlayground({ endpoint }: ApiPlaygroundProps) {
         </form>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-4">
+      <div className="space-y-4">
         <div className="border border-[#E5E5E5]">
           <h4 className="px-4 py-2 border-b border-[#E5E5E5] text-xs uppercase tracking-[0.08em] font-semibold bg-[#F5F5F5]">
             Example Request
           </h4>
-          <pre className="p-4 text-xs overflow-x-auto font-mono">{endpoint.exampleRequest}</pre>
+          <pre className="px-4 py-3 text-xs overflow-x-auto font-mono whitespace-pre-wrap break-all">
+            {endpoint.exampleRequest}
+          </pre>
         </div>
         <div className="border border-[#E5E5E5]">
           <h4 className="px-4 py-2 border-b border-[#E5E5E5] text-xs uppercase tracking-[0.08em] font-semibold bg-[#F5F5F5]">
             Example Response
           </h4>
-          <pre className="p-4 text-xs overflow-x-auto font-mono">{JSON.stringify(endpoint.exampleResponse, null, 2)}</pre>
+          <pre className="p-4 text-xs overflow-auto font-mono max-h-[420px]">
+            {JSON.stringify(endpoint.exampleResponse, null, 2)}
+          </pre>
         </div>
       </div>
 

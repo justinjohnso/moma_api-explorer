@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import type { MoMAObject } from '../lib/types';
 import ArtworkCard from './ArtworkCard';
-import Prism from 'prismjs';
-import 'prismjs/components/prism-json';
 import { getArtworkImageFallbackChain } from '../lib/image-utils';
 
 interface PlaygroundResult {
@@ -60,10 +58,13 @@ export default function ResponseViewer({ result }: ResponseViewerProps) {
           <button
             type="button"
             onClick={() => toggle(path)}
-            className="ml-2 text-[11px] underline underline-offset-2"
+            className="ml-2 inline-flex h-5 w-5 items-center justify-center border border-[#E5E5E5] bg-white text-xs leading-none align-middle hover:bg-[#F5F5F5] focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-1"
+            aria-label={isCollapsed ? `Expand array with ${value.length} item(s)` : 'Collapse array'}
+            title={isCollapsed ? `Expand array (${value.length})` : 'Collapse array'}
           >
-            {isCollapsed ? `expand ${value.length}` : 'collapse'}
+            {isCollapsed ? '▸' : '▾'}
           </button>
+          {isCollapsed && <span className="ml-1 text-[11px] text-[#666666]">{value.length}</span>}
           {!isCollapsed && (
             <div className="ml-4">
               {value.map((entry, index) => (
@@ -88,10 +89,13 @@ export default function ResponseViewer({ result }: ResponseViewerProps) {
           <button
             type="button"
             onClick={() => toggle(path)}
-            className="ml-2 text-[11px] underline underline-offset-2"
+            className="ml-2 inline-flex h-5 w-5 items-center justify-center border border-[#E5E5E5] bg-white text-xs leading-none align-middle hover:bg-[#F5F5F5] focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-1"
+            aria-label={isCollapsed ? `Expand object with ${keys.length} key(s)` : 'Collapse object'}
+            title={isCollapsed ? `Expand object (${keys.length})` : 'Collapse object'}
           >
-            {isCollapsed ? `expand ${keys.length}` : 'collapse'}
+            {isCollapsed ? '▸' : '▾'}
           </button>
+          {isCollapsed && <span className="ml-1 text-[11px] text-[#666666]">{keys.length}</span>}
           {!isCollapsed && (
             <div className="ml-4">
               {keys.map((key, index) => (
@@ -112,13 +116,6 @@ export default function ResponseViewer({ result }: ResponseViewerProps) {
   const payload = result.data as { objects?: MoMAObject[] } | undefined;
   const objects = payload?.objects ?? [];
   const visualObjects = objects.filter((item) => getArtworkImageFallbackChain(item).length > 0);
-
-  const rawJson = JSON.stringify(result.data ?? { error: result.error }, null, 2);
-  const highlighted =
-    rawJson.length > 500_000
-      ? null
-      : Prism.highlight(rawJson, Prism.languages.json, 'json');
-  const heavyPayload = rawJson.length > 120_000;
 
   return (
     <section className="border border-black">
@@ -150,31 +147,11 @@ export default function ResponseViewer({ result }: ResponseViewerProps) {
         )}
         {result.ok ? (
           <div className="space-y-4">
-            {!heavyPayload && (
-              <details open>
-                <summary className="cursor-pointer text-xs font-medium">Collapsible explorer</summary>
-                <pre className="font-mono text-xs overflow-x-auto whitespace-pre-wrap break-words mt-2">
-                  {renderValue(result.data, 'root')}
-                </pre>
-              </details>
-            )}
-            {heavyPayload && (
-              <p className="text-xs text-[#666666]">
-                Explorer hidden for large payload; use syntax-highlighted JSON below.
-              </p>
-            )}
             <details open>
-              <summary className="cursor-pointer text-xs font-medium">Syntax-highlighted JSON</summary>
-              {highlighted ? (
-                <pre
-                  className="font-mono text-xs overflow-x-auto whitespace-pre-wrap break-words mt-2 bg-[#F5F5F5] border border-[#E5E5E5] p-3"
-                  dangerouslySetInnerHTML={{ __html: highlighted }}
-                />
-              ) : (
-                <pre className="font-mono text-xs overflow-x-auto whitespace-pre-wrap break-words mt-2 bg-[#F5F5F5] border border-[#E5E5E5] p-3">
-                  {rawJson}
-                </pre>
-              )}
+              <summary className="cursor-pointer text-xs font-medium">Collapsible explorer</summary>
+              <pre className="font-mono text-xs overflow-x-auto whitespace-pre-wrap break-words mt-2">
+                {renderValue(result.data, 'root')}
+              </pre>
             </details>
           </div>
         ) : (

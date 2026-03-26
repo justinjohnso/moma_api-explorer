@@ -111,7 +111,7 @@ export default function RandomArtwork() {
             disabled={loading}
             className="bg-black text-white px-4 py-2 text-sm hover:opacity-90 disabled:opacity-60"
           >
-            {loading ? 'Loading…' : 'Get Random Artwork'}
+            {loading ? 'Loading…' : 'Get Random Art'}
           </button>
         </div>
       </div>
