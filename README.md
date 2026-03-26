@@ -68,6 +68,15 @@ The Astro config uses `GITHUB_REPOSITORY` in CI to automatically set:
 
 For local builds, it defaults to `/`.
 
+### Optional custom domain / subdomain support
+
+You can override deploy URL behavior via GitHub Actions Variables:
+
+- `PUBLIC_SITE_URL` (example: `https://api-playground.example.org`)
+- `PUBLIC_BASE_PATH` (example: `/` for root domain, `/docs` for subpath hosting)
+
+If these are not set, the workflow automatically uses default GitHub Pages conventions.
+
 ## Notes
 
 - API calls are client-side only.

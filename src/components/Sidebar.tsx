@@ -5,6 +5,7 @@ import {
   categoryDescriptions,
   categoryHref,
   categoryLabels,
+  homeHref,
   endpointHref,
   endpoints,
   getEndpointsByCategory,
@@ -62,9 +63,9 @@ export default function Sidebar({ currentPath }: SidebarProps) {
 
       <div className="p-4 space-y-4">
         <a
-          href="/"
+          href={homeHref()}
           className={`block border border-[#E5E5E5] px-3 py-2 text-sm ${
-            currentPath === '/' ? 'bg-[#F5F5F5] border-black' : 'hover:bg-[#F5F5F5]'
+            currentPath === homeHref() ? 'bg-[#F5F5F5] border-black' : 'hover:bg-[#F5F5F5]'
           }`}
         >
           Landing / Discover

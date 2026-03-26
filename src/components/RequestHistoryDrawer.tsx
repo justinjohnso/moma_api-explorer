@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { HistoryReplayPayload, RequestHistory } from '../lib/types';
 import { clearHistory, getRequestHistory, setPendingHistoryReplay } from '../lib/storage';
-import { endpointHref, getEndpointById } from '../lib/endpoints';
+import { endpointHref, getEndpointById, homeHref } from '../lib/endpoints';
 import { maskTokenInUrl } from '../lib/token-utils';
 
 export default function RequestHistoryDrawer() {
@@ -37,10 +37,16 @@ export default function RequestHistoryDrawer() {
     };
     setPendingHistoryReplay(detail);
     const targetPath = endpointHref(endpoint);
-    if (window.location.pathname === targetPath) {
+    const currentPath = window.location.pathname;
+    const currentRelativePath = `${window.location.pathname}${window.location.search}${window.location.hash}`.replace(
+      window.location.origin,
+      '',
+    );
+    if (currentPath === targetPath || currentRelativePath === targetPath) {
       window.dispatchEvent(new CustomEvent<HistoryReplayPayload>('moma-history-replay', { detail }));
     } else {
-      window.location.href = targetPath;
+      const safeTarget = targetPath.startsWith('/') ? targetPath : homeHref();
+      window.location.assign(safeTarget);
     }
     setOpen(false);
   }

@@ -1,5 +1,13 @@
 import type { CategoryKey, Endpoint } from './types';
 
+const rawBaseUrl = import.meta.env.BASE_URL ?? '/';
+const basePrefix = rawBaseUrl.endsWith('/') ? rawBaseUrl.slice(0, -1) : rawBaseUrl;
+
+function withBase(path: string): string {
+  const normalized = path.startsWith('/') ? path : `/${path}`;
+  return basePrefix ? `${basePrefix}${normalized}` : normalized;
+}
+
 export const categoryLabels: Record<CategoryKey, string> = {
   artists: 'Artists',
   objects: 'Objects',
@@ -291,11 +299,19 @@ export function getEndpointsByCategory(category: CategoryKey): Endpoint[] {
 }
 
 export function endpointHref(endpoint: Endpoint): string {
-  return `/docs/${endpoint.docsPath.join('/')}`;
+  return withBase(`/docs/${endpoint.docsPath.join('/')}`);
 }
 
 export function categoryHref(category: CategoryKey): string {
-  return `/docs/${category}`;
+  return withBase(`/docs/${category}`);
+}
+
+export function homeHref(): string {
+  return withBase('/');
+}
+
+export function docsRootHref(): string {
+  return withBase('/docs');
 }
 
 export function routeToEndpoint(slugParts: string[]): Endpoint | undefined {

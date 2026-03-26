@@ -8,9 +8,11 @@ import {
   categoryDescriptions,
   categoryHref,
   categoryLabels,
+  docsRootHref,
   endpointHref,
   endpoints,
   getEndpointsByCategory,
+  homeHref,
   routeToEndpoint,
 } from '../../lib/endpoints';
 import type { CategoryKey } from '../../lib/types';
@@ -33,7 +35,7 @@ type Props = CategoryProps | EndpointProps;
 
 const props = Astro.props as Props;
 let pageTitle = 'MoMA API Docs';
-let currentPath = '/docs';
+let currentPath = docsRootHref();
 let categoryLabel = '';
 let category: CategoryKey | null = null;
 let categoryEndpoints = [] as typeof endpoints;
@@ -48,7 +50,7 @@ if (props.mode === 'category') {
 } else {
   endpoint = endpoints.find((entry) => entry.id === props.endpointId);
   if (!endpoint) {
-    return Astro.redirect('/');
+    return Astro.redirect(homeHref());
   }
   const slugValue = Astro.params.slug ?? '';
   const slugParts = Array.isArray(slugValue)
@@ -70,7 +72,7 @@ if (props.mode === 'category') {
 <DocsLayout title={pageTitle} currentPath={currentPath}>
   {props.mode === 'category' && category ? (
     <>
-      <Breadcrumbs items={[{ label: 'API', href: '/' }, { label: categoryLabel }, { label: 'Overview' }]} />
+      <Breadcrumbs items={[{ label: 'API', href: homeHref() }, { label: categoryLabel }, { label: 'Overview' }]} />
       <header>
         <h1 class="text-3xl font-semibold">{categoryLabel}</h1>
         <p class="text-[#666666] mt-2">{categoryDescriptions[category]}</p>
@@ -84,7 +86,7 @@ if (props.mode === 'category') {
     <>
       <Breadcrumbs
         items={[
-          { label: 'API', href: '/' },
+          { label: 'API', href: homeHref() },
           { label: categoryLabel, href: categoryHref(endpoint.category) },
           { label: endpoint.title },
         ]}

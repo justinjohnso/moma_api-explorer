@@ -1,7 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { categories, categoryDescriptions, categoryHref, categoryLabels, getEndpointsByCategory } from '../lib/endpoints';
+import { categories, categoryDescriptions, categoryHref, categoryLabels, endpointHref, endpoints, getEndpointsByCategory } from '../lib/endpoints';
 import RandomArtwork from '../components/RandomArtwork';
+
+const randomObjectsEndpoint = endpoints.find((entry) => entry.id === 'objects-random');
+const searchObjectsEndpoint = endpoints.find((entry) => entry.id === 'objects-search');
 ---
 
 <BaseLayout title="MoMA API Playground">
@@ -13,10 +16,10 @@ import RandomArtwork from '../components/RandomArtwork';
         Explore, test, and understand MoMA public API endpoints with live request/response tooling.
       </p>
       <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
-        <a href="/docs/objects/random" class="bg-black text-white px-5 py-3 text-sm hover:opacity-90">
+        <a href={randomObjectsEndpoint ? endpointHref(randomObjectsEndpoint) : categoryHref('objects')} class="bg-black text-white px-5 py-3 text-sm hover:opacity-90">
           Start with Random Artwork
         </a>
-        <a href="/docs/objects/search" class="border border-black px-5 py-3 text-sm hover:bg-black hover:text-white transition-colors">
+        <a href={searchObjectsEndpoint ? endpointHref(searchObjectsEndpoint) : categoryHref('objects')} class="border border-black px-5 py-3 text-sm hover:bg-black hover:text-white transition-colors">
           Browse Documentation
         </a>
       </div>

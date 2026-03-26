@@ -19,14 +19,15 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_REPOSITORY: ${{ github.repository }}
+      GITHUB_ACTIONS: "true"
+      PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+      PUBLIC_BASE_PATH: ${{ vars.PUBLIC_BASE_PATH }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: Setup Node
         uses: actions/setup-node@v4
