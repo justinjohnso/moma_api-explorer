@@ -1,4 +1,6 @@
 import type { ApiResponse } from './types';
+import { getToken, setToken as setTokenInMemory, clearToken as clearTokenInMemory } from './storage';
+import { maskTokenInUrl } from './token-utils';
 
 const BASE_URL = 'https://api.moma.org';
 const DEFAULT_TIMEOUT_MS = 9000;
@@ -7,33 +9,23 @@ const DEFAULT_RETRIES = 1;
 export class MoMAAPI {
   private token: string | null = null;
 
-  constructor() {
-    // Try to load token from localStorage on client side
-    if (typeof window !== 'undefined') {
-      this.token = localStorage.getItem('moma_api_token');
-    }
-  }
+  constructor() {}
 
   setToken(token: string): void {
     this.token = token;
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('moma_api_token', token);
-    }
+    setTokenInMemory(token);
   }
 
   getToken(): string | null {
     if (this.token) return this.token;
-    if (typeof window === 'undefined') return null;
-    const stored = localStorage.getItem('moma_api_token');
+    const stored = getToken();
     if (stored) this.token = stored;
     return stored;
   }
 
   clearToken(): void {
     this.token = null;
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('moma_api_token');
-    }
+    clearTokenInMemory();
   }
 
   async request<T>(
@@ -82,7 +74,7 @@ export class MoMAAPI {
           statusText: response.statusText,
           duration,
           data,
-          url: url.toString(),
+          url: maskTokenInUrl(url.toString()),
           attempts: attempt,
         };
 
@@ -100,7 +92,7 @@ export class MoMAAPI {
           statusText: isTimeout ? 'Request Timeout' : 'Network Error',
           duration,
           error: isTimeout ? `Request timed out after ${timeoutMs}ms` : error instanceof Error ? error.message : 'Unknown error',
-          url: url.toString(),
+          url: maskTokenInUrl(url.toString()),
           attempts: attempt,
         };
         lastError = response;
@@ -119,7 +111,7 @@ export class MoMAAPI {
         statusText: 'Network Error',
         duration: 0,
         error: 'Unknown error',
-        url: url.toString(),
+        url: maskTokenInUrl(url.toString()),
         attempts: retries + 1,
       }
     );

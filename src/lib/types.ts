@@ -71,10 +71,10 @@ export interface RequestHistory {
   method: string;
   status: number;
   duration: number;
-  url: string;
+  safeUrl: string;
 }
 
 export interface HistoryReplayPayload {
   endpointId: string;
-  url: string;
+  safeUrl: string;
 }

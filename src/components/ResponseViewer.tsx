@@ -148,7 +148,7 @@ export default function ResponseViewer({ result }: ResponseViewerProps) {
         {result.ok ? (
           <div className="space-y-4">
             <details open>
-              <summary className="cursor-pointer text-xs font-medium">Collapsible explorer</summary>
+              <summary className="cursor-pointer text-xs font-medium">JSON Response</summary>
               <pre className="font-mono text-xs overflow-x-auto whitespace-pre-wrap break-words mt-2">
                 {renderValue(result.data, 'root')}
               </pre>

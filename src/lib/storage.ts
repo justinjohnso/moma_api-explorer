@@ -2,7 +2,6 @@ import type { HistoryReplayPayload, RequestHistory } from './types';
 import type { MoMAObject } from './types';
 
 const STORAGE_KEYS = {
-  TOKEN: 'moma_api_token',
   HISTORY: 'moma_request_history',
   THEME: 'moma_theme',
   HISTORY_REPLAY: 'moma_history_replay',
@@ -11,20 +10,42 @@ const STORAGE_KEYS = {
 } as const;
 
 const MAX_HISTORY_ITEMS = 10;
+const LEGACY_TOKEN_KEY = 'moma_api_token';
+const SESSION_TOKEN_KEY = 'moma_api_token_session';
+let tokenMemory: string | null = null;
+let legacyTokenPurged = false;
+
+function purgeLegacyTokenStorage(): void {
+  if (typeof window === 'undefined' || legacyTokenPurged) return;
+  localStorage.removeItem(LEGACY_TOKEN_KEY);
+  sessionStorage.removeItem(LEGACY_TOKEN_KEY);
+  legacyTokenPurged = true;
+}
 
 export function getToken(): string | null {
+  purgeLegacyTokenStorage();
+  if (tokenMemory) return tokenMemory;
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem(STORAGE_KEYS.TOKEN);
+  const sessionToken = sessionStorage.getItem(SESSION_TOKEN_KEY);
+  if (!sessionToken) return null;
+  tokenMemory = sessionToken;
+  return tokenMemory;
 }
 
 export function setToken(token: string): void {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem(STORAGE_KEYS.TOKEN, token);
+  purgeLegacyTokenStorage();
+  tokenMemory = token;
+  if (typeof window !== 'undefined') {
+    sessionStorage.setItem(SESSION_TOKEN_KEY, token);
+  }
 }
 
 export function clearToken(): void {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem(STORAGE_KEYS.TOKEN);
+  purgeLegacyTokenStorage();
+  tokenMemory = null;
+  if (typeof window !== 'undefined') {
+    sessionStorage.removeItem(SESSION_TOKEN_KEY);
+  }
 }
 
 export function getRequestHistory(): RequestHistory[] {
@@ -33,7 +54,20 @@ export function getRequestHistory(): RequestHistory[] {
   if (!stored) return [];
   
   try {
-    return JSON.parse(stored);
+    const parsed = JSON.parse(stored) as Array<Partial<RequestHistory> & { url?: string }>;
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((item) => typeof item.endpointId === 'string' && typeof item.endpointTitle === 'string')
+      .map((item) => ({
+        id: typeof item.id === 'string' ? item.id : `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+        timestamp: typeof item.timestamp === 'number' ? item.timestamp : Date.now(),
+        endpointId: item.endpointId as string,
+        endpointTitle: item.endpointTitle as string,
+        method: typeof item.method === 'string' ? item.method : 'GET',
+        status: typeof item.status === 'number' ? item.status : 0,
+        duration: typeof item.duration === 'number' ? item.duration : 0,
+        safeUrl: typeof item.safeUrl === 'string' ? item.safeUrl : (item.url ?? ''),
+      }));
   } catch {
     return [];
   }
@@ -65,9 +99,10 @@ export function getPendingHistoryReplay(): HistoryReplayPayload | null {
   if (!stored) return null;
 
   try {
-    const parsed = JSON.parse(stored) as Partial<HistoryReplayPayload>;
-    if (typeof parsed.endpointId !== 'string' || typeof parsed.url !== 'string') return null;
-    return { endpointId: parsed.endpointId, url: parsed.url };
+    const parsed = JSON.parse(stored) as Partial<HistoryReplayPayload> & { url?: string };
+    const safeUrl = parsed.safeUrl ?? parsed.url;
+    if (typeof parsed.endpointId !== 'string' || typeof safeUrl !== 'string') return null;
+    return { endpointId: parsed.endpointId, safeUrl };
   } catch {
     return null;
   }

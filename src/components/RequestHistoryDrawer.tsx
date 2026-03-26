@@ -33,7 +33,7 @@ export default function RequestHistoryDrawer() {
 
     const detail: HistoryReplayPayload = {
       endpointId: item.endpointId,
-      url: item.url,
+      safeUrl: item.safeUrl,
     };
     setPendingHistoryReplay(detail);
     const targetPath = endpointHref(endpoint);
@@ -76,7 +76,7 @@ export default function RequestHistoryDrawer() {
             </header>
 
             <div className="mt-4 flex items-center justify-between">
-              <p className="text-xs text-[#666666]">Last 10 requests in localStorage</p>
+              <p className="text-xs text-[#666666]">Last 10 requests (token shown as {'{TOKEN}'})</p>
               <button
                 type="button"
                 onClick={handleClear}
@@ -103,7 +103,7 @@ export default function RequestHistoryDrawer() {
                       {new Date(item.timestamp).toLocaleString()}
                     </p>
                     <p className="text-sm font-medium mt-1">{endpoint?.title ?? item.endpointTitle}</p>
-                    <p className="font-mono text-[11px] mt-1 break-all">{maskTokenInUrl(item.url)}</p>
+                    <p className="font-mono text-[11px] mt-1 break-all">{maskTokenInUrl(item.safeUrl)}</p>
                     <p className="text-xs mt-2">
                       <span className={statusClass}>Status {item.status}</span> · {item.duration}ms
                     </p>

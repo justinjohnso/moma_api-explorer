@@ -71,6 +71,10 @@ function hydrateParamsFromReplay(endpoint: Endpoint, rawUrl: string): Record<str
   return next;
 }
 
+function sanitizeUrlForHistory(url: string): string {
+  return maskTokenInUrl(url);
+}
+
 type ShapeState = {
   nodes: number;
   truncated: boolean;
@@ -172,24 +176,17 @@ export default function ApiPlayground({ endpoint }: ApiPlaygroundProps) {
       syncTokenFromApi();
     }
 
-    function onStorage(event: StorageEvent) {
-      if (event.key !== 'moma_api_token') return;
-      syncTokenFromApi();
-    }
-
     syncTokenFromApi();
     window.addEventListener('moma-token-updated', onTokenUpdated);
-    window.addEventListener('storage', onStorage);
     return () => {
       window.removeEventListener('moma-token-updated', onTokenUpdated);
-      window.removeEventListener('storage', onStorage);
     };
   }, []);
 
   useEffect(() => {
     function replay(detail: HistoryReplayPayload) {
       if (detail.endpointId !== endpoint.id) return;
-      setParams(hydrateParamsFromReplay(endpoint, detail.url));
+      setParams(hydrateParamsFromReplay(endpoint, detail.safeUrl));
       setResult(null);
       clearPendingHistoryReplay();
       window.dispatchEvent(new CustomEvent('moma-toast', { detail: { message: 'Loaded request into tester' } }));
@@ -284,7 +281,7 @@ export default function ApiPlayground({ endpoint }: ApiPlaygroundProps) {
       method: endpoint.method,
       status: nextResult.status,
       duration: nextResult.duration,
-      url: nextResult.url,
+      safeUrl: sanitizeUrlForHistory(nextResult.url),
     });
     window.dispatchEvent(new Event('moma-history-updated'));
   }

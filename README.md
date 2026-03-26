@@ -80,5 +80,6 @@ If these are not set, the workflow automatically uses default GitHub Pages conve
 ## Notes
 
 - API calls are client-side only.
-- Token is required by MoMA API and saved to browser localStorage.
+- Token is required by MoMA API and stored in `sessionStorage` + in-memory (survives refresh, clears on tab/window close).
+- Request history stores sanitized URLs with token shown as `token=YOUR_TOKEN`.
 - This project is not affiliated with MoMA.

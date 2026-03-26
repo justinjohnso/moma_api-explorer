@@ -24,7 +24,7 @@ export default function TokenManager() {
     if (token.trim()) {
       saveToken(token);
       api.setToken(token);
-      window.dispatchEvent(new CustomEvent('moma-token-updated', { detail: { token } }));
+      window.dispatchEvent(new CustomEvent('moma-token-updated'));
       setIsOpen(false);
       setTestResult(null);
       window.dispatchEvent(new CustomEvent('moma-toast', { detail: { message: 'Token saved' } }));
@@ -35,7 +35,7 @@ export default function TokenManager() {
     setTokenState('');
     removeToken();
     api.clearToken();
-    window.dispatchEvent(new CustomEvent('moma-token-updated', { detail: { token: null } }));
+    window.dispatchEvent(new CustomEvent('moma-token-updated'));
     setTestResult(null);
     window.dispatchEvent(new CustomEvent('moma-toast', { detail: { message: 'Token cleared' } }));
   };
@@ -172,7 +172,8 @@ export default function TokenManager() {
 
               <div className="pt-4 border-t border-gray-200">
                 <p className="text-xs text-gray-500">
-                  Your token is stored locally in your browser and never sent to any server except MoMA's API.
+                  Your token is kept in this tab session (sessionStorage + in-memory): it survives refresh,
+                  but is cleared when the tab/window closes. It is sent only to MoMA's API.
                   {hasToken && (
                     <span className="block mt-1">
                       Current token: <code className="font-mono">{maskedToken}</code>

@@ -1,11 +1,8 @@
-const TOKEN_VISIBLE_TAIL = 4;
-const TOKEN_MASK_PREFIX = '****';
+const TOKEN_MASK = 'YOUR_TOKEN';
 
 export function maskToken(token: string | null | undefined): string {
   if (!token) return '';
-  if (token.length <= TOKEN_VISIBLE_TAIL) return TOKEN_MASK_PREFIX;
-  const tail = token.slice(-TOKEN_VISIBLE_TAIL);
-  return `${TOKEN_MASK_PREFIX}${tail}`;
+  return TOKEN_MASK;
 }
 
 export function maskTokenInUrl(url: string): string {
