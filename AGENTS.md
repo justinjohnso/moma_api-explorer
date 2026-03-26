@@ -1,73 +1,105 @@
-# AGENTS.md — MoMA NYU Hackathon
+# AGENTS.md — `_app_moma-api`
 
-Hackathon project for MoMA collection exploration. Contains MoMA API playground, Solana integration app, and local MoMA collection database tools.
+This directory contains the **MoMA API Playground** web app (Astro + React islands), focused on interactive documentation for `https://api.moma.org`.
 
-## Quick Reference
+## App Summary
 
-### Local Collection Database
+- Framework: **Astro 6**
+- Interactivity: **React 19 islands**
+- Styling: **Tailwind CSS 4**
+- Language: **TypeScript**
+- Syntax highlighting: **PrismJS**
+- API mode: **client-side only** (no backend proxy)
+
+## Local Development
+
 ```bash
-cd moma-local-collection
-python build_moma.py          # Build SQLite DB from MoMA JSON data
+pnpm install
+pnpm dev
 ```
-**Prerequisites:** Ensure `git lfs pull` has been run in `collection/` to fetch the large JSON files.
 
-### Database Schema
-- `artworks` table: ObjectID (PK), Title, Artist, Date, Medium, Dimensions, etc.
-- `artists` table: ConstituentID (PK), Name, Nationality, Gender, BirthYear, DeathYear, etc.
+Build and preview:
+
+```bash
+pnpm build
+pnpm preview
+```
+
+## Environment
+
+`.env.example`:
+
+```bash
+PUBLIC_MOMA_API_BASE_URL=https://api.moma.org
+```
+
+This is a public client variable and is read in browser-side requests.
 
 ## Project Structure
 
+```text
+_app_moma-api/
+├── src/
+│   ├── components/
+│   │   ├── ApiPlayground.tsx
+│   │   ├── TokenManager.tsx
+│   │   ├── ResponseViewer.tsx
+│   │   ├── RequestHistoryDrawer.tsx
+│   │   ├── Sidebar.tsx
+│   │   ├── Breadcrumbs.tsx
+│   │   ├── RandomArtwork.tsx
+│   │   └── ...
+│   ├── layouts/
+│   │   ├── BaseLayout.astro
+│   │   └── DocsLayout.astro
+│   ├── lib/
+│   │   ├── api.ts
+│   │   ├── endpoints.ts
+│   │   ├── storage.ts
+│   │   ├── token-utils.ts
+│   │   ├── image-utils.ts
+│   │   └── types.ts
+│   ├── pages/
+│   │   ├── index.astro
+│   │   └── docs/[...slug].astro
+│   └── styles/global.css
+├── public/
+└── AGENTS.md
 ```
-moma-nyu-hackathon/
-├── app-moma-api/             # MoMA API playground/exploration app
-├── app-moma-sol/             # Solana blockchain integration app
-└── moma-local-collection/    # Local MoMA collection database tools
-    ├── build_moma.py         # Script to build SQLite DB from JSON
-    ├── moma_full.db          # SQLite database (generated)
-    └── collection/           # MoMA collection data (git submodule)
-        ├── Artworks.json     # ~160K artwork records
-        └── Artists.json      # ~16K artist records
-```
 
-## MoMA Collection Data
+## Feature Expectations
 
-The local collection contains the full MoMA public dataset:
-- **Artworks**: 160,629 records with metadata (title, artist, date, medium, dimensions, acquisition date)
-- **Artists**: 15,859 records with metadata (name, nationality, gender, birth/death years, Wiki QID, Getty ULAN ID)
-- **License**: CC0 (public domain)
-- **Source**: [MoMA Collection on GitHub](https://github.com/MuseumofModernArt/collection)
+- Token modal + token persistence in `localStorage`
+- Endpoint docs for Artists, Objects, Exhibitions, Packages
+- Live request builder + response viewer (status + timing)
+- Request history (last 10 calls)
+- Discover mode with random artwork
+- Responsive sidebar navigation + breadcrumbs
+- MoMA-inspired visual system (black/white base + red accents)
 
-### Working with the Database
-```python
-import sqlite3
-conn = sqlite3.connect("moma-local-collection/moma_full.db")
-cur = conn.cursor()
+## Storage Contract
 
-# Example queries
-cur.execute("SELECT Title, Artist, Date FROM artworks LIMIT 10")
-cur.execute("SELECT DisplayName, Nationality FROM artists WHERE Gender = 'Female'")
-```
+Current browser storage keys:
 
-## Code Conventions
+- `moma_api_token`
+- `moma_request_history`
+- `moma_theme`
+- `moma_history_replay` (sessionStorage)
+- `moma_discover_artwork`
+- `moma_discover_artworks`
 
-- **Language**: Python for data processing, JavaScript/TypeScript for apps
-- **Database**: SQLite for local collection queries
-- **Data cleaning**: The `build_moma.py` script handles JSON array formatting and null values
+If changing keys, migrate old values to avoid breaking existing users.
 
-## Development Principles
+## Engineering Notes
 
-1. **Use the local database** for fast prototyping rather than hitting external APIs
-2. **Respect data attribution** — credit MoMA when using collection data publicly
-3. **Handle incomplete data** — many records are "not Curator Approved" with missing fields
-4. **Test with subsets first** — the full dataset is large; use LIMIT clauses during development
+- Keep endpoint definitions centralized in `src/lib/endpoints.ts`.
+- Keep API request logic centralized in `src/lib/api.ts`.
+- Prefer reusable typed interfaces from `src/lib/types.ts`.
+- Do not move token logic out of `storage.ts`/`token-utils.ts` unless required.
+- Preserve accessibility: keyboard navigation, labels, and visible focus.
 
-## Git Workflow & Branch Hygiene (Mandatory)
+## Workflow
 
-1. **No direct feature work on `main`:** start every implementation in a dedicated branch.
-2. **Use worktrees for active efforts:** each significant task gets its own `git worktree` + branch pair.
-3. **Fleet/parallel rule:** if running multiple workflows in parallel ("fleet"), each workflow must run in a separate worktree/branch.
-4. **Commit as you go:** create small, logical commits at each stable milestone, not one large end-of-session commit.
-5. **Keep working trees clean:** before context-switching, either commit, or explicitly stash with a clear label.
-6. **Merge readiness gate:** merge to `main` only after relevant checks pass.
-7. **PR-first integration:** prefer merge via PR (even solo) to preserve review history and rollback clarity.
-8. **Never add `Co-authored-by` trailers** to git commit messages.
+1. Make surgical changes relevant to the request.
+2. Run `pnpm build` to validate before finishing.
+3. Update README/AGENTS when behavior or architecture changes.

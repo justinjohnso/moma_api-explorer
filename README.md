@@ -51,6 +51,23 @@ pnpm build
 pnpm preview
 ```
 
+## Deploy to GitHub Pages
+
+This project is configured for GitHub Pages via `.github/workflows/deploy.yml`.
+
+1. Push this project to a GitHub repository.
+2. In GitHub, go to `Settings` → `Pages`.
+3. Set **Source** to **GitHub Actions**.
+4. Ensure your default deployment branch is `main`.
+5. Push to `main` (or run the workflow manually from the Actions tab).
+
+The Astro config uses `GITHUB_REPOSITORY` in CI to automatically set:
+
+- `site`: `https://<owner>.github.io`
+- `base`: `/<repo>`
+
+For local builds, it defaults to `/`.
+
 ## Notes
 
 - API calls are client-side only.
