@@ -1,10 +1,10 @@
 # MoMA API Playground (Astro)
 
-Polished, interactive API documentation playground for `https://api.moma.org`, built with Astro, TypeScript, Tailwind, and React islands.
+Polished, interactive API documentation playground for `https://api.moma.org`, built with **Astro 6**, **TypeScript**, **Tailwind CSS 4**, and **React 19** islands.
 
 ## Features
 
-- Token manager modal with localStorage persistence and connection test
+- Token manager modal with sessionStorage persistence (survives refresh, clears on tab close) and connection test
 - Discover mode on landing page using `/api/objects/random`
 - Full endpoint docs across Artists, Objects, Exhibitions, and Packages
 - Per-endpoint interactive “Try It” request builder
@@ -90,6 +90,19 @@ If these are not set, the workflow automatically uses default GitHub Pages conve
 ## Notes
 
 - API calls are client-side only.
-- Token is required by MoMA API and stored in `sessionStorage` + in-memory (survives refresh, clears on tab/window close).
+- Token is stored in `sessionStorage` + in-memory (survives refresh, clears on tab/window close).
 - Request history stores sanitized URLs with token shown as `token=YOUR_TOKEN`.
 - This project is not affiliated with MoMA.
+
+## Storage Keys
+
+Current browser storage keys:
+
+| Key | Storage | Purpose |
+|-----|---------|---------|
+| `moma_api_token_session` | sessionStorage | API token |
+| `moma_request_history` | localStorage | Request history (last 10) |
+| `moma_theme` | localStorage | Theme preference |
+| `moma_history_replay` | sessionStorage | History replay payload |
+| `moma_discover_artwork` | localStorage | Single cached artwork |
+| `moma_discover_artworks` | localStorage | Cached artwork grid (up to 3) |
