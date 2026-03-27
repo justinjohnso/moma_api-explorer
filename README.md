@@ -15,6 +15,16 @@ Polished, interactive API documentation playground for `https://api.moma.org`, b
 - Breadcrumbs and responsive layout
 - Toast notifications and loading skeletons
 
+## Screenshots
+
+### Landing / Discover Mode
+
+![Landing and Discover mode screenshot](./public/screenshots/landing-discover-mode.png)
+
+### Endpoint Playground
+
+![Endpoint playground screenshot](./public/screenshots/endpoint-playground.png)
+
 ## Routes
 
 - `/`
